@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
+using Serilog;
 
 namespace DiscordBot
 {
@@ -15,10 +16,11 @@ namespace DiscordBot
         // If you want to assign it elsewhere, consider removing the readonly keyword.
         private readonly DiscordSocketClient _client;
         private readonly SettingsHelper _settingsHelper;
-
-        public BasicBot(SettingsHelper settingsHelper)
+        private readonly ILogger _logger;
+        public BasicBot(SettingsHelper settingsHelper,ILogger logger)
         {
             _settingsHelper = settingsHelper;
+            _logger = logger;
             // It is recommended to Dispose of a client when you are finished
             // using it, at the end of your app's lifetime.
             _client = new DiscordSocketClient();
@@ -37,7 +39,7 @@ namespace DiscordBot
             // Different approaches to making your token a secret is by putting them in local .json, .yaml, .xml or .txt files, then reading them on startup.
 
             await _client.StartAsync();
-
+            _logger.Debug("Hello Test");
             // Block the program until it is closed.
             await Task.Delay(Timeout.Infinite);
         }
