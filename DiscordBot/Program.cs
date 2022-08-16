@@ -13,11 +13,11 @@ var builder = CreateDefaultBuilder();
 builder.ConfigureServices(delegate (HostBuilderContext context, IServiceCollection services)
 {
     var config = context.Configuration;
-    services.AddLogging(loggingBuilder =>
-    {
-        loggingBuilder.AddSerilog(dispose: true);
-        loggingBuilder.AddConfiguration(config);
-    });
+    //services.AddLogging(loggingBuilder =>
+    //{
+    //    loggingBuilder.AddSerilog(dispose: true);
+    //    loggingBuilder.AddConfiguration(config);
+    //});
     services.AddSingleton<BasicBot>();
     services.AddSingleton<SettingsHelper>();
 
@@ -31,12 +31,7 @@ var host = builder.Build();
 
 }
 
-Log.Verbose("Hello");
-Log.Debug("Hello");
-Log.Information("Hello");
-Log.Warning("Hello");
-Log.Error("Hello");
-Log.Fatal("Hello");
+
 
 IHostBuilder CreateDefaultBuilder()
 {
@@ -70,8 +65,11 @@ IHostBuilder CreateDefaultBuilder()
         //        logging.AddEventLog();
         //    }
         //})
-        .UseSerilog((hostContext, services, configuration) => {
-            configuration.WriteTo.File("./logs/log-.txt", rollingInterval :RollingInterval.Day);
+        .UseSerilog((hostContext, services, configuration) =>
+        {
+            configuration.ReadFrom.Configuration(hostContext.Configuration);
+            configuration.ReadFrom.Services(services);
+            //configuration.WriteTo.File("logs/log-.txt", rollingInterval :RollingInterval.Day);
         })
         .UseDefaultServiceProvider(delegate (HostBuilderContext context, ServiceProviderOptions options)
         {
