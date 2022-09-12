@@ -25,6 +25,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SampleTest", "SampleTest", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerilogSample", "SerilogSample\SerilogSample.csproj", "{685EDDC1-AC57-42E1-BA8F-D0162CD4A88F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spider", "Spider\Spider.csproj", "{BD3570AA-64DA-4208-8E97-B27C969DE8E7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,10 @@ Global
 		{685EDDC1-AC57-42E1-BA8F-D0162CD4A88F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{685EDDC1-AC57-42E1-BA8F-D0162CD4A88F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{685EDDC1-AC57-42E1-BA8F-D0162CD4A88F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD3570AA-64DA-4208-8E97-B27C969DE8E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD3570AA-64DA-4208-8E97-B27C969DE8E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD3570AA-64DA-4208-8E97-B27C969DE8E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD3570AA-64DA-4208-8E97-B27C969DE8E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
