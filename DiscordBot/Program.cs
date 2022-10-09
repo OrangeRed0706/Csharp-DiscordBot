@@ -13,23 +13,19 @@ var builder = CreateDefaultBuilder();
 builder.ConfigureServices(delegate (HostBuilderContext context, IServiceCollection services)
 {
     var config = context.Configuration;
-    //services.AddLogging(loggingBuilder =>
-    //{
-    //    loggingBuilder.AddSerilog(dispose: true);
-    //    loggingBuilder.AddConfiguration(config);
-    //});
     services.AddSingleton<BasicBot>();
     services.AddSingleton<SettingsHelper>();
 
 });
+
 var host = builder.Build();
+
+using (var serviceScope = host.Services.CreateScope())
 {
-    using var serviceScope = host.Services.CreateScope();
     serviceScope.ServiceProvider.GetRequiredService<BasicBot>().MainAsync().GetAwaiter().GetResult();
-
     host.Run();
-
 }
+
 
 
 
@@ -45,26 +41,6 @@ IHostBuilder CreateDefaultBuilder()
             config.AddJsonFile("appsettings.json", false)
                 .AddJsonFile($"appsettings.{hostingEnvironment.EnvironmentName}.json", true);
         })
-        //.ConfigureLogging(delegate(HostBuilderContext hostingContext, ILoggingBuilder logging)
-        //{
-        //    bool flag2 = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-        //    if (flag2)
-        //    {
-        //        logging.AddFilter<EventLogLoggerProvider>((LogLevel level) => level >= LogLevel.Warning);
-        //    }
-        //    logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-        //    if (hostingContext.HostingEnvironment.IsDevelopment())
-        //    {
-        //        logging.AddConsole();
-        //        logging.AddDebug();
-        //    }
-
-        //    logging.AddEventSourceLogger();
-        //    if (flag2)
-        //    {
-        //        logging.AddEventLog();
-        //    }
-        //})
         .UseSerilog((hostContext, services, configuration) =>
         {
             configuration.ReadFrom.Configuration(hostContext.Configuration);

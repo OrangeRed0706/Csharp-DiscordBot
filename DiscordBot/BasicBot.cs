@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -19,7 +21,7 @@ namespace DiscordBot
         private readonly DiscordSocketClient _client;
         private readonly SettingsHelper _settingsHelper;
         private readonly ILogger<BasicBot> _logger;
-        public BasicBot(SettingsHelper settingsHelper,ILogger<BasicBot> logger)
+        public BasicBot(SettingsHelper settingsHelper, ILogger<BasicBot> logger)
         {
             _settingsHelper = settingsHelper;
             _logger = logger;
@@ -49,6 +51,12 @@ namespace DiscordBot
 
         private Task LogAsync(LogMessage log)
         {
+            if (log.Exception is CommandException cmdException)
+            {
+                Console.WriteLine($"[Command/{log.Severity}] {cmdException.Command.Aliases.First()}"
+                                  + $" failed to execute in {cmdException.Context.Channel}.");
+                Console.WriteLine(cmdException);
+            }
             var strLog = log.ToString();
             Log.Information(strLog);
             Console.WriteLine(strLog);
@@ -68,16 +76,45 @@ namespace DiscordBot
         // reading over the Commands Framework sample.
         private async Task MessageReceivedAsync(SocketMessage message)
         {
+            Log.Information(message.Content);
+
             // The bot should never respond to itself.
             if (message.Author.Id == _client.CurrentUser.Id)
                 return;
 
+            if (message.Content == "選辣雞")
+            {
+                var options = new List<SelectMenuOptionBuilder>
+                {
+                    new SelectMenuOptionBuilder
+                    {
+                        Label = "李元傑",
+                        Value = "李元傑",
+                        Description = "小垃圾"
+                    },
+                    new SelectMenuOptionBuilder
+                    {
+                        Label = "黃冠傑",
+                        Value = "黃冠傑",
+                        Description = "大垃圾"
+                    }
+                };
+                var bb = new ComponentBuilder()
+                    .WithSelectMenu("選辣雞", options, minValues: 1, maxValues: options.Count, placeholder: "選一個傢伙");
+                await message.Channel.SendMessageAsync("Hi",components: bb.Build());
+
+            }
+
 
             if (message.Content == "!ping")
             {
+
                 // Create a new componentbuilder, in which dropdowns & buttons can be created.
                 var cb = new ComponentBuilder()
                     .WithButton("Click me!", "unique-id", ButtonStyle.Primary);
+
+
+
 
                 // Send a message with content 'pong', including a button.
                 // This button needs to be build by calling .Build() before being passed into the call.
@@ -89,15 +126,39 @@ namespace DiscordBot
         // https://discordnet.dev/guides/int_framework/intro.html
         private async Task InteractionCreatedAsync(SocketInteraction interaction)
         {
+
             // safety-casting is the best way to prevent something being cast from being null.
             // If this check does not pass, it could not be cast to said type.
             if (interaction is SocketMessageComponent component)
             {
+                if (component.Data.Type == ComponentType.SelectMenu)
+                {
+                    if (component.Data.CustomId == "選辣雞")
+                    {
+                        var contents = component.Data.Values.ToArray();
+                        var stringBuilder = new StringBuilder();
+                        foreach (var value in contents)
+                        {
+                            stringBuilder.Append("你選了" + value + "這個辣雞\n");
+                        }
+
+                        await interaction.RespondAsync(stringBuilder.ToString());
+                        return;
+                    }
+                }
+
+
                 // Check for the ID created in the button mentioned above.
                 if (component.Data.CustomId == "unique-id")
                     await interaction.RespondAsync("Thank you for clicking my button!");
 
                 else Console.WriteLine("An ID has been received that has no handler!");
+
+                if (interaction.User.Id == 557508424951267328)
+                {
+                    await interaction.RespondAsync("親愛的");
+                    return;
+                }
             }
         }
     }
