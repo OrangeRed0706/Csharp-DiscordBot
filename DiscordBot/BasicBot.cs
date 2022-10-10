@@ -97,12 +97,18 @@ namespace DiscordBot
                         Label = "黃冠傑",
                         Value = "黃冠傑",
                         Description = "大垃圾"
+                    },
+                    new SelectMenuOptionBuilder
+                    {
+                        Label = "RA",
+                        Value = "RA",
+                        Description = "追尋廷寶的老鼠"
                     }
                 };
                 var bb = new ComponentBuilder()
                     .WithSelectMenu("選辣雞", options, minValues: 1, maxValues: options.Count, placeholder: "選一個傢伙");
                 await message.Channel.SendMessageAsync("Hi",components: bb.Build());
-
+                return;
             }
 
 
@@ -119,6 +125,7 @@ namespace DiscordBot
                 // Send a message with content 'pong', including a button.
                 // This button needs to be build by calling .Build() before being passed into the call.
                 await message.Channel.SendMessageAsync("pong!", components: cb.Build());
+                return;
             }
         }
 

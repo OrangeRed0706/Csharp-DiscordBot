@@ -26,9 +26,6 @@ using (var serviceScope = host.Services.CreateScope())
     host.Run();
 }
 
-
-
-
 IHostBuilder CreateDefaultBuilder()
 {
     var hostBuilder = Host
