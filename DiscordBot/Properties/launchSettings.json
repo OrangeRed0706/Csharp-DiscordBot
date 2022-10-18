@@ -3,8 +3,7 @@
     "DiscordBot": {
       "commandName": "Project",
       "environmentVariables": {
-        "DOTNET_ENVIRONMENT": "Development",
-        "token": "MTAwODM4MjAyOTMwMzM5NDM4Nw.GrzDw6.2seiZBLP-0R6oLEXiaMl7lJHunY14Gc25FZmns"
+        "DOTNET_ENVIRONMENT": "Development"
       }
     }
   }
