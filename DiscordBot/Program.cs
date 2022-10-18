@@ -39,8 +39,8 @@ using var serviceScope = host.Services.CreateScope();
     var client = services.GetRequiredService<DiscordSocketClient>();
     client.Log += LogAsync;
     services.GetRequiredService<CommandService>().Log += LogAsync;
-
-    await client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("token"));
+    var token = Environment.GetEnvironmentVariable("DiscordBotToken", EnvironmentVariableTarget.Machine);
+    await client.LoginAsync(TokenType.Bot, token);
     await client.StartAsync();
 
     // Here we initialize the logic required to register our commands.
