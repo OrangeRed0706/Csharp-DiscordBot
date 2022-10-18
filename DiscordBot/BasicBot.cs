@@ -15,12 +15,12 @@ namespace DiscordBot
 {
     public class BasicBot
     {
-
         // Non-static readonly fields can only be assigned in a constructor.
         // If you want to assign it elsewhere, consider removing the readonly keyword.
         private readonly DiscordSocketClient _client;
         private readonly SettingsHelper _settingsHelper;
         private readonly ILogger<BasicBot> _logger;
+
         public BasicBot(SettingsHelper settingsHelper, ILogger<BasicBot> logger)
         {
             _settingsHelper = settingsHelper;
@@ -57,6 +57,7 @@ namespace DiscordBot
                                   + $" failed to execute in {cmdException.Context.Channel}.");
                 Console.WriteLine(cmdException);
             }
+
             var strLog = log.ToString();
             Log.Information(strLog);
             Console.WriteLine(strLog);
@@ -74,15 +75,22 @@ namespace DiscordBot
 
         // This is not the recommended way to write a bot - consider
         // reading over the Commands Framework sample.
-        private async Task MessageReceivedAsync(SocketMessage message)
+        private async Task MessageReceivedAsync(SocketMessage context)
         {
-            Log.Information(message.Content);
+            Log.Information($"{context.Author}：{context.Content}");
+            if (context.Content.Contains("delete"))
+            {
+                var count = Convert.ToInt32(context.Content.Substring(8));
+                var messages = await context.Channel.GetMessagesAsync(count + 1).FlattenAsync();
+                var enumerable = messages as IMessage[] ?? messages.ToArray();
+                await (context.Channel as SocketTextChannel)?.DeleteMessagesAsync(enumerable)!;
+            }
 
             // The bot should never respond to itself.
-            if (message.Author.Id == _client.CurrentUser.Id)
+            if (context.Author.Id == _client.CurrentUser.Id)
                 return;
 
-            if (message.Content == "選辣雞")
+            if (context.Content == "選辣雞")
             {
                 var options = new List<SelectMenuOptionBuilder>
                 {
@@ -103,28 +111,31 @@ namespace DiscordBot
                         Label = "RA",
                         Value = "RA",
                         Description = "追尋廷寶的老鼠"
+                    },
+                    new SelectMenuOptionBuilder
+                    {
+                        Label = "璿宇",
+                        Value = "璿宇",
+                        Description = "跨海大橋之我的眼鏡"
                     }
                 };
                 var bb = new ComponentBuilder()
                     .WithSelectMenu("選辣雞", options, minValues: 1, maxValues: options.Count, placeholder: "選一個傢伙");
-                await message.Channel.SendMessageAsync("Hi",components: bb.Build());
+                await context.Channel.SendMessageAsync("Hi", components: bb.Build());
                 return;
             }
 
 
-            if (message.Content == "!ping")
+            if (context.Content == "!ping")
             {
-
                 // Create a new componentbuilder, in which dropdowns & buttons can be created.
                 var cb = new ComponentBuilder()
                     .WithButton("Click me!", "unique-id", ButtonStyle.Primary);
 
 
-
-
-                // Send a message with content 'pong', including a button.
+                // Send a context with content 'pong', including a button.
                 // This button needs to be build by calling .Build() before being passed into the call.
-                await message.Channel.SendMessageAsync("pong!", components: cb.Build());
+                await context.Channel.SendMessageAsync("pong!", components: cb.Build());
                 return;
             }
         }
@@ -133,7 +144,6 @@ namespace DiscordBot
         // https://discordnet.dev/guides/int_framework/intro.html
         private async Task InteractionCreatedAsync(SocketInteraction interaction)
         {
-
             // safety-casting is the best way to prevent something being cast from being null.
             // If this check does not pass, it could not be cast to said type.
             if (interaction is SocketMessageComponent component)
@@ -157,18 +167,25 @@ namespace DiscordBot
 
                 // Check for the ID created in the button mentioned above.
                 if (component.Data.CustomId == "unique-id")
-                    await interaction.RespondAsync("Thank you for clicking my button!");
-
-                else Console.WriteLine("An ID has been received that has no handler!");
-
-                if (interaction.User.Id == 557508424951267328)
                 {
-                    await interaction.RespondAsync("親愛的");
-                    return;
+                    if (interaction.User.Id == 557508424951267328)
+                    {
+                        await interaction.RespondAsync("親愛的");
+                        return;
+                    }
+                    else
+                    {
+                        await interaction.RespondAsync("你按三小");
+                        return;
+                    }
+
+                    await interaction.RespondAsync("Thank you for clicking my button!");
+                }
+                else
+                {
+                    Console.WriteLine("An ID has been received that has no handler!");
                 }
             }
         }
     }
-
-
 }

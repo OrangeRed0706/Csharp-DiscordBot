@@ -1,5 +1,11 @@
 ﻿using System.Runtime.InteropServices;
+using Discord;
+using Discord.Commands;
+using Discord.Interactions;
+using Discord.WebSocket;
 using DiscordBot;
+using DiscordBot.Modules;
+using DiscordBot.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,17 +19,44 @@ var builder = CreateDefaultBuilder();
 builder.ConfigureServices(delegate (HostBuilderContext context, IServiceCollection services)
 {
     var config = context.Configuration;
-    services.AddSingleton<BasicBot>();
-    services.AddSingleton<SettingsHelper>();
+    //services.AddSingleton<BasicBot>();
+    //services.AddSingleton<SettingsHelper>();
+    services.AddSingleton<DiscordSocketClient>();
+    services.AddSingleton<CommandService>();
+    services.AddSingleton<CommandHandlingService>();
+    services.AddSingleton<HttpClient>();
+    services.AddSingleton<PictureService>();
+    services.AddSingleton(x=> new InteractionService(x.GetRequiredService<DiscordSocketClient>()));
+    //services.BuildServiceProvider();
 
 });
 
 var host = builder.Build();
 
-using (var serviceScope = host.Services.CreateScope())
+using var serviceScope = host.Services.CreateScope();
 {
-    serviceScope.ServiceProvider.GetRequiredService<BasicBot>().MainAsync().GetAwaiter().GetResult();
+    var services = serviceScope.ServiceProvider;
+    var client = services.GetRequiredService<DiscordSocketClient>();
+    client.Log += LogAsync;
+    services.GetRequiredService<CommandService>().Log += LogAsync;
+
+    await client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("token"));
+    await client.StartAsync();
+
+    // Here we initialize the logic required to register our commands.
+    await services.GetRequiredService<CommandHandlingService>().InitializeAsync();
+
+    //await Task.Delay(Timeout.Infinite);
+
     host.Run();
+}
+
+
+Task LogAsync(LogMessage log)
+{
+    Console.WriteLine(log.ToString());
+
+    return Task.CompletedTask;
 }
 
 IHostBuilder CreateDefaultBuilder()
@@ -42,7 +75,6 @@ IHostBuilder CreateDefaultBuilder()
         {
             configuration.ReadFrom.Configuration(hostContext.Configuration);
             configuration.ReadFrom.Services(services);
-            //configuration.WriteTo.File("logs/log-.txt", rollingInterval :RollingInterval.Day);
         })
         .UseDefaultServiceProvider(delegate (HostBuilderContext context, ServiceProviderOptions options)
         {
